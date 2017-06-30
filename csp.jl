@@ -1,5 +1,5 @@
 function hamming(sentence1, sentence2)
-    
+
     distance = 0
 
     for i in 1:length(sentence1)
@@ -47,15 +47,15 @@ function build(n, string_length, data_collection, α)
             end
             if candidate_list[j] < min_distance
                 min_distance = candidate_list[j]
-            end        
+            end
         end
         for j in 1:n
             if min_distance + ((max_distance - min_distance) * α) >= candidate_list[j]
-                push!(rcl, j)
+                push!(rcl, data_collection[j][i])
             end
         end
-        println(candidate_list)
-        println(rcl)
+        # println(candidate_list)
+        # println(rcl)
         solution[i] = rcl[rand(1:length(rcl))]
         iMax = -1
         for j in 1:n
@@ -74,14 +74,14 @@ end
 
 dna_basis = []
 
-dna_basis_test = ["CCAGCTGCATCACAGGAGGCCAGCGAGCAGGTCTGTTCCAAGGGCCTTCGAGCCAGTCTG", 
-                  "AGACCCGCCGGGAGGCGGAGGACCTGCAGGGTGAGCCCCACCGCCCCTCCGTGCCCCCGC", 
+dna_basis_test = ["CCAGCTGCATCACAGGAGGCCAGCGAGCAGGTCTGTTCCAAGGGCCTTCGAGCCAGTCTG",
+                  "AGACCCGCCGGGAGGCGGAGGACCTGCAGGGTGAGCCCCACCGCCCCTCCGTGCCCCCGC",
                   "GAGGTGAAGGACGTCCTTCCCCAGGAGCCGGTGAGAAGCGCAGTCGGGGGCACGGGGATG",
                   "GGGCTGCGTTGCTGGTCACATTCCTGGCAGGTATGGGGCGGGGCTTGCTCGGTTTTCCCC",
                   "GCTCAGCCCCCAGGTCACCCAGGAACTGACGTGAGTGTCCCCATCCCGGCCCTTGACCCT",
                   "CAGACTGGGTGGACAACAAAACCTTCAGCGGTAAGAGAGGGCCAAGCTCAGAGACCACAG"]
 
-open("../Data/splice.data") do file
+open("Data/splice.data") do file
     while !eof(file)
         push!(dna_basis, strip(readline(file), '\n'))
     end
@@ -93,7 +93,7 @@ M = length(dna_basis_test[1])
 println(N)
 println(M)
 
-results = build(N, M, dna_basis_test, 0.2)
+results = build(N, M, dna_basis_test, 0.9)
 
 println(results[1])
 println(String(results[2]))
