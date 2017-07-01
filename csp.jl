@@ -1,14 +1,10 @@
 function hamming(sentence1, sentence2)
-
     distance = 0
-
     for i in 1:length(sentence1)
-
         if sentence1[i] != sentence2[i]
             distance += 1
         end
     end
-
     return distance
 end
 
@@ -19,12 +15,10 @@ function build(n, string_length, data_collection, α)
     rcl = []
     iMax = 0
     distance_matrix = zeros(length(data_collection),length(data_collection))
-
     for i in 1:n
         candidate_list[i] = 0
         distance_list[i] = 0
     end
-
     for i in 1:string_length
         max_distance = 0
         min_distance = 999999
@@ -68,33 +62,64 @@ function build(n, string_length, data_collection, α)
         end
         empty!(rcl)
     end
-    return iMax,solution,length(solution)
+    return iMax,solution,distance_list
 end
 
+function local_search(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
+    solution_l = copy(solution)
+    for i in 1:string_length
+        iMax_l = -1
+        alphabet_l = copy(alphabet)
+        deleteat!(alphabet_l, find(x -> x == solution[i], alphabet_l))
+        random_value = alphabet_l[rand(1:length(alphabet_l))]
+        solution_l[i] = random_value
+        for j in 1:n
+            distance_list[j] = hamming(solution_l, data_collection[j])
+            if distance_list[j] >= iMax_l
+                iMax_l = distance_list[j]
+            end
+        end
+        if iMax_l < iMax
+            solution[i] = solution_l[i]
+            iMax = iMax_l
+        else
+            solution_l[i] = solution[i]
+        end
+    end
+
+    return iMax, solution
+end
+
+alphabet = ['A', 'C', 'T', 'G']
 
 dna_basis = []
 
-dna_basis_test = ["CCAGCTGCATCACAGGAGGCCAGCGAGCAGGTCTGTTCCAAGGGCCTTCGAGCCAGTCTG",
-                  "AGACCCGCCGGGAGGCGGAGGACCTGCAGGGTGAGCCCCACCGCCCCTCCGTGCCCCCGC",
-                  "GAGGTGAAGGACGTCCTTCCCCAGGAGCCGGTGAGAAGCGCAGTCGGGGGCACGGGGATG",
-                  "GGGCTGCGTTGCTGGTCACATTCCTGGCAGGTATGGGGCGGGGCTTGCTCGGTTTTCCCC",
-                  "GCTCAGCCCCCAGGTCACCCAGGAACTGACGTGAGTGTCCCCATCCCGGCCCTTGACCCT",
-                  "CAGACTGGGTGGACAACAAAACCTTCAGCGGTAAGAGAGGGCCAAGCTCAGAGACCACAG"]
+# dna_basis = ["CCAGCTGCATCACAGGAGGCCAGCGAGCAGGTCTGTTCCAAGGGCCTTCGAGCCAGTCTG",
+#                   "AGACCCGCCGGGAGGCGGAGGACCTGCAGGGTGAGCCCCACCGCCCCTCCGTGCCCCCGC",
+#                   "GAGGTGAAGGACGTCCTTCCCCAGGAGCCGGTGAGAAGCGCAGTCGGGGGCACGGGGATG",
+#                   "GGGCTGCGTTGCTGGTCACATTCCTGGCAGGTATGGGGCGGGGCTTGCTCGGTTTTCCCC",
+#                   "GCTCAGCCCCCAGGTCACCCAGGAACTGACGTGAGTGTCCCCATCCCGGCCCTTGACCCT",
+#                   "CAGACTGGGTGGACAACAAAACCTTCAGCGGTAAGAGAGGGCCAAGCTCAGAGACCACAG"]
 
-open("Data/splice.data") do file
+open("Data/ins.data") do file
     while !eof(file)
-        push!(dna_basis, strip(readline(file), '\n'))
+        #push!(dna_basis, strip(readline(file), '\n')) # Rodar essa linha no linux, pq o windows eh uma máquina de escrever
+        push!(dna_basis, strip(readline(file), ['\n', '\r'])) #Eu odeio o windows, maldito Bill Gates
     end
 end
 
-N = length(dna_basis_test)
-M = length(dna_basis_test[1])
+N = length(dna_basis)
+M = length(dna_basis[1])
 
-println(N)
-println(M)
+println("Número de bases: $(N)")
+println("Tamanho das bases: $(M)")
 
-results = build(N, M, dna_basis_test, 0.9)
+results = build(N, M, dna_basis, 0.2)
+println("Menor distância máxima fase de construção: $(results[1])")
+println("Sequência encontrada fase de contrução: $(String(results[2]))")
 
-println(results[1])
-println(String(results[2]))
-println(results[3])
+results_build = [copy(results[1]), String(results[2])]
+
+new_results = local_search(results[1], results[2], results[3], dna_basis, N, M, alphabet)
+println("Menor distância máxima busca local: $(new_results[1])")
+println("Sequência encontrada busca local: $(String(new_results[2]))")
