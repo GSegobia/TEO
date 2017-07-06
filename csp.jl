@@ -114,7 +114,7 @@ M = length(dna_basis[1])
 println("Número de bases: $(N)")
 println("Tamanho das bases: $(M)")
 
-results = build(N, M, dna_basis, 0.2)
+results = build(N, M, dna_basis, 0.8)
 println("Menor distância máxima fase de construção: $(results[1])")
 println("Sequência encontrada fase de contrução: $(String(results[2]))")
 

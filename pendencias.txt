@@ -1,0 +1,7 @@
+Implementações Restantes:
+ - Busca Local Aleatória (First Improvement) (GRASP-3)
+
+Comparações:
+  - Melhor Valor de Cada
+  - Média de Pelo menos 3 resultados
+  - Tempo computacional médio de cada caso
