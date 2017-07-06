@@ -65,6 +65,18 @@ function build(n, string_length, data_collection, α)
     return iMax,solution,distance_list
 end
 
+#Determinístico e Best Improvement
+function local_search_grasp2(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
+  neighboors_list = []
+  
+
+end
+
+#Aleatório e First Improvement
+function local_search_grasp3(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
+
+end
+
 function local_search(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
     solution_l = copy(solution)
     for i in 1:string_length
