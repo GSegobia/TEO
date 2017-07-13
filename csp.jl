@@ -100,7 +100,7 @@ function local_search_grasp3(iMax, solution, data_collection, number_of_strings,
     while(stop_condition)
         random_alphabet_value = alphabet[rand(1:length(alphabet))]
         iMax_control = iMax
-        for i in 1 : string_length
+        for i in 1 : (string_length / 2)
             random_position_value = rand(1:string_length)
             solution_l = copy(solution)
             solution_l[random_position_value] = random_alphabet_value
@@ -181,7 +181,7 @@ M = length(dna_basis[1])
 println("Número de bases: $(N)")
 println("Tamanho das bases: $(M)")
 
-results = build(N, M, dna_basis, 0.8)
+results = build(N, M, dna_basis, 0.2)
 println("Menor distância máxima fase de construção: $(results[1])")
 #println("Sequência encontrada fase de contrução: $(String(results[2]))")
 
