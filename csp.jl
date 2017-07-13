@@ -24,9 +24,6 @@ function build(n, string_length, data_collection, α)
         min_distance = 999999
         for j in 1:n
             for k in 1:n
-                # println(data_collection[i][j])
-                # println(data_collection[i][k])
-                # distance_matrix[1,1]=0
                 if data_collection[j][i] != data_collection[k][i]
                     distance_matrix[k,j] = 1
                 else
@@ -48,12 +45,9 @@ function build(n, string_length, data_collection, α)
                 push!(rcl, data_collection[j][i])
             end
         end
-        # println(candidate_list)
-        # println(rcl)
         solution[i] = rcl[rand(1:length(rcl))]
         iMax = -1
         for j in 1:n
-            #println(hamming(solution,String(data_collection[j])))
             distance_list[j] = hamming(solution,data_collection[j])
             if distance_list[j] >= iMax
                 iMax = distance_list[j]
@@ -62,22 +56,79 @@ function build(n, string_length, data_collection, α)
         end
         empty!(rcl)
     end
-    return iMax,solution,distance_list
+    return iMax, solution
 end
 
 #Determinístico e Best Improvement
-function local_search_grasp2(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
-  neighboors_list = []
-  
-
+function local_search_grasp2(iMax, solution, data_collection, number_of_strings, string_length, alphabet)
+    distance_list = Array{Int64}(number_of_strings)
+    stop_condition = true
+    while(stop_condition)
+        random_value = alphabet[rand(1:length(alphabet))]
+        solution_l = copy(solution)
+        iMax_l = iMax
+        for i in 1 : string_length
+            neighboor = copy(solution)
+            iMax_neighboor = -1
+            neighboor[i] = random_value
+            for j in 1 : number_of_strings
+                distance_list[j] = hamming(neighboor, data_collection[j])
+                if distance_list[j] > iMax_neighboor
+                    iMax_neighboor = distance_list[j]
+                end
+            end
+            if iMax_l > iMax_neighboor
+                iMax_l = iMax_neighboor
+                solution_l[i] = neighboor[i]
+            end
+        end
+        if iMax_l < iMax
+            iMax = iMax_l
+            solution = copy(solution_l)
+        else
+            stop_condition = false
+        end
+    end
+    return iMax, solution
 end
 
 #Aleatório e First Improvement
-function local_search_grasp3(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
-
+function local_search_grasp3(iMax, solution, data_collection, number_of_strings, string_length, alphabet)
+    distance_list = Array{Int64}(number_of_strings)
+    stop_condition = true
+    count = 0
+    while(stop_condition)
+        random_alphabet_value = alphabet[rand(1:length(alphabet))]
+        iMax_control = iMax
+        for i in 1 : string_length
+            random_position_value = rand(1:string_length)
+            solution_l = copy(solution)
+            solution_l[random_position_value] = random_alphabet_value
+            iMax_l = -1
+            for j in 1 : number_of_strings
+                distance_list[j] = hamming(solution_l, data_collection[j])
+                if distance_list[j] > iMax_l
+                    iMax_l = distance_list[j]
+                end
+            end
+            if iMax_l < iMax
+                solution[random_position_value] = solution_l[random_position_value]
+                iMax = iMax_l
+                break
+            end
+        end
+        if iMax == iMax_control
+            count = count + 1
+            if count == 10
+                stop_condition = false
+            end
+        end
+    end
+    return iMax, solution
 end
 
-function local_search(iMax, solution, distance_list, data_collection, n, string_length, alphabet)
+function local_search(iMax, solution, data_collection, number_of_strings, string_length, alphabet)
+    distance_list = Array{Int64}(number_of_strings)
     solution_l = copy(solution)
     for i in 1:string_length
         iMax_l = -1
@@ -113,7 +164,11 @@ dna_basis = []
 #                   "GCTCAGCCCCCAGGTCACCCAGGAACTGACGTGAGTGTCCCCATCCCGGCCCTTGACCCT",
 #                   "CAGACTGGGTGGACAACAAAACCTTCAGCGGTAAGAGAGGGCCAAGCTCAGAGACCACAG"]
 
-open("Data/ins.data") do file
+open("instancias/n10m1000tai4.ins") do file
+    readline(file)
+    readline(file)
+    readline(file)
+    readline(file)
     while !eof(file)
         #push!(dna_basis, strip(readline(file), '\n')) # Rodar essa linha no linux, pq o windows eh uma máquina de escrever
         push!(dna_basis, strip(readline(file), ['\n', '\r'])) #Eu odeio o windows, maldito Bill Gates
@@ -128,10 +183,10 @@ println("Tamanho das bases: $(M)")
 
 results = build(N, M, dna_basis, 0.8)
 println("Menor distância máxima fase de construção: $(results[1])")
-println("Sequência encontrada fase de contrução: $(String(results[2]))")
+#println("Sequência encontrada fase de contrução: $(String(results[2]))")
 
 results_build = [copy(results[1]), String(results[2])]
 
-new_results = local_search(results[1], results[2], results[3], dna_basis, N, M, alphabet)
+new_results = local_search_grasp3(results[1], results[2], dna_basis, N, M, alphabet)
 println("Menor distância máxima busca local: $(new_results[1])")
-println("Sequência encontrada busca local: $(String(new_results[2]))")
+#println("Sequência encontrada busca local: $(String(new_results[2]))")
